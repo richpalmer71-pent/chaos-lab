@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Image Cropper — CHAOS-LAB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/shared.css"/>
+</head>
+<body>
+<nav>
+  <div class="nav-item"><div class="nav-dash"></div><a href="/tools/prompt-architect" class="nav-label">AI TOOLS</a></div>
+  <div class="nav-item"><div class="nav-dash"></div><a href="/about" class="nav-label">ABOUT</a></div>
+  <div class="nav-item"><div class="nav-dash"></div><a href="/projects" class="nav-label">PROJECTS</a></div>
+  <div class="nav-item"><div class="nav-dash"></div><a href="/profile" class="nav-label">PROFILE</a></div>
+  <div class="nav-right"><div class="nav-right-dash"></div><a href="/" class="nav-right-label">CHAOS-LAB</a></div>
+</nav>
+
+<main class="content" style="padding-top:100px;">
+
+  <!-- Tool Grid -->
+  <div class="tool-grid">
+    <a href="/tools/prompt-architect" class="tool-btn">Prompt Architect</a>
+    <a href="/tools/image-cropper" class="tool-btn active">Image Cropper</a>
+    <div class="tool-btn soon">+ More Soon</div>
+    <div class="tool-btn soon">+ More Soon</div>
+    <div class="tool-btn soon">+ More Soon</div>
+    <div class="tool-btn soon">+ More Soon</div>
+  </div>
+
+  <div class="section-dash"></div>
+  <h1 class="page-title">Image<br>Cropper</h1>
+  <p class="page-sub">Upload an image, set your target size in pixels, then drag and zoom to get the perfect crop.</p>
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+    <div class="upload-icon">
+      <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+    </div>
+    <div class="upload-title">Drop an image here or click to browse</div>
+    <div class="upload-sub">JPG, PNG, WEBP supported</div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="loadImage(event)"/>
+
+  <div class="cropper-layout">
+    <div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <div class="canvas-container" id="canvasContainer">
+          <canvas id="cropCanvas"></canvas>
+          <canvas id="overlayCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+          <span class="crop-info" id="cropInfo">Set a size and click Apply to begin</span>
+          <button class="change-image" onclick="resetCropper()">Change image</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-panel" id="controlsPanel" style="display:none;">
+      <div class="controls-section">
+        <div class="controls-title">Crop Size (px)</div>
+        <div class="size-inputs">
+          <div class="size-input-wrap"><span class="size-input-label">Width</span><input type="number" class="size-input" id="cropW" placeholder="1080" min="1"/></div>
+          <div class="size-divider">×</div>
+          <div class="size-input-wrap"><span class="size-input-label">Height</span><input type="number" class="size-input" id="cropH" placeholder="1080" min="1"/></div>
+        </div>
+        <button class="btn" style="width:100%;justify-content:center;" onclick="applyCropSize()">Apply Size</button>
+      </div>
+
+      <div class="controls-section">
+        <div class="controls-title">Zoom</div>
+        <p class="zoom-note"><strong>Note:</strong> Zooming or enlarging may result in loss of quality — always check your downloaded file before use.</p>
+        <div class="zoom-row">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" color="var(--muted)"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"/></svg>
+          <input type="range" id="zoomSlider" min="10" max="300" value="100" oninput="updateZoom()"/>
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" color="var(--muted)"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/></svg>
+          <span class="zoom-label" id="zoomVal">100%</span>
+        </div>
+      </div>
+
+      <div class="controls-section">
+        <div class="controls-title">Nudge Position</div>
+        <div class="nudge-grid">
+          <div class="nudge-btn empty"></div>
+          <button class="nudge-btn" onclick="nudge(0,-10)"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg></button>
+          <div class="nudge-btn empty"></div>
+          <button class="nudge-btn" onclick="nudge(-10,0)"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg></button>
+          <div class="nudge-btn empty"></div>
+          <button class="nudge-btn" onclick="nudge(10,0)"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></button>
+          <div class="nudge-btn empty"></div>
+          <button class="nudge-btn" onclick="nudge(0,10)"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg></button>
+          <div class="nudge-btn empty"></div>
+        </div>
+      </div>
+
+      <div class="controls-section">
+        <div class="controls-title">Download Format</div>
+        <div class="format-row">
+          <button class="format-btn active" id="fmt-jpg" onclick="setFormat('jpg')">JPG</button>
+          <button class="format-btn" id="fmt-png" onclick="setFormat('png')">PNG</button>
+        </div>
+        <button class="btn" style="width:100%;justify-content:center;" onclick="downloadCrop()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+          Download Crop
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+let sourceImage=null, cropW=0, cropH=0, imgX=0, imgY=0, scale=1, isDragging=false, dragStartX, dragStartY, dragStartImgX, dragStartImgY, downloadFormat='jpg', cropReady=false;
+const cropCanvas=document.getElementById('cropCanvas'), ctx=cropCanvas.getContext('2d'), overlayCanvas=document.getElementById('overlayCanvas'), octx=overlayCanvas.getContext('2d');
+
+function loadImage(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev => { const img=new Image(); img.onload=()=>{ sourceImage=img; document.getElementById('uploadZone').classList.add('has-image'); document.getElementById('canvasWrap').classList.add('visible'); document.getElementById('controlsPanel').style.display='block'; setupCanvas(); }; img.src=ev.target.result; };
+  reader.readAsDataURL(file);
+}
+function setupCanvas() {
+  const maxW=document.getElementById('canvasContainer').offsetWidth||600, ratio=sourceImage.height/sourceImage.width;
+  cropCanvas.width=maxW; cropCanvas.height=maxW*ratio; overlayCanvas.width=maxW; overlayCanvas.height=maxW*ratio;
+  scale=maxW/sourceImage.width; imgX=0; imgY=0; cropReady=false;
+  document.getElementById('zoomSlider').value=100; document.getElementById('zoomVal').textContent='100%';
+  drawCanvas(); document.getElementById('cropInfo').textContent='Set a size and click Apply to begin';
+}
+function applyCropSize() {
+  const w=parseInt(document.getElementById('cropW').value), h=parseInt(document.getElementById('cropH').value);
+  if(!w||!h||w<1||h<1){alert('Please enter a valid width and height.');return;}
+  cropW=w; cropH=h;
+  const maxW=Math.min(document.getElementById('canvasContainer').offsetWidth||600,700), ar=cropH/cropW;
+  cropCanvas.width=maxW; cropCanvas.height=Math.round(maxW*ar); overlayCanvas.width=cropCanvas.width; overlayCanvas.height=cropCanvas.height;
+  const scaleX=cropCanvas.width/sourceImage.width, scaleY=cropCanvas.height/sourceImage.height;
+  scale=Math.max(scaleX,scaleY); imgX=(cropCanvas.width-sourceImage.width*scale)/2; imgY=(cropCanvas.height-sourceImage.height*scale)/2;
+  document.getElementById('zoomSlider').value=100; document.getElementById('zoomVal').textContent='100%';
+  cropReady=true; drawCanvas(); document.getElementById('cropInfo').textContent=`${cropW} × ${cropH}px — drag to reposition`;
+}
+function drawCanvas() {
+  ctx.clearRect(0,0,cropCanvas.width,cropCanvas.height); ctx.fillStyle='#c8c8c4'; ctx.fillRect(0,0,cropCanvas.width,cropCanvas.height);
+  if(sourceImage) ctx.drawImage(sourceImage,imgX,imgY,sourceImage.width*scale,sourceImage.height*scale);
+  drawOverlay();
+}
+function drawOverlay() {
+  octx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height); if(!cropReady) return;
+  octx.strokeStyle='rgba(255,255,255,0.5)'; octx.lineWidth=1.5; octx.strokeRect(1,1,overlayCanvas.width-2,overlayCanvas.height-2);
+  octx.strokeStyle='rgba(255,255,255,0.15)'; octx.lineWidth=1;
+  const w=overlayCanvas.width, h=overlayCanvas.height;
+  octx.beginPath(); octx.moveTo(w/3,0); octx.lineTo(w/3,h); octx.moveTo(2*w/3,0); octx.lineTo(2*w/3,h); octx.moveTo(0,h/3); octx.lineTo(w,h/3); octx.moveTo(0,2*h/3); octx.lineTo(w,2*h/3); octx.stroke();
+}
+function updateZoom() {
+  if(!sourceImage) return;
+  const zp=parseInt(document.getElementById('zoomSlider').value); document.getElementById('zoomVal').textContent=zp+'%';
+  const cx=cropCanvas.width/2, cy=cropCanvas.height/2;
+  const base=cropReady?Math.max(cropCanvas.width/sourceImage.width,cropCanvas.height/sourceImage.height):cropCanvas.width/sourceImage.width;
+  const ns=base*(zp/100), sr=ns/scale;
+  imgX=cx-(cx-imgX)*sr; imgY=cy-(cy-imgY)*sr; scale=ns; drawCanvas();
+}
+function nudge(dx,dy){imgX+=dx;imgY+=dy;drawCanvas();}
+const container=document.getElementById('canvasContainer');
+container.addEventListener('mousedown',e=>{isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;dragStartImgX=imgX;dragStartImgY=imgY;container.style.cursor='grabbing';});
+window.addEventListener('mousemove',e=>{if(!isDragging)return;imgX=dragStartImgX+(e.clientX-dragStartX);imgY=dragStartImgY+(e.clientY-dragStartY);drawCanvas();});
+window.addEventListener('mouseup',()=>{isDragging=false;container.style.cursor='move';});
+container.addEventListener('touchstart',e=>{const t=e.touches[0];isDragging=true;dragStartX=t.clientX;dragStartY=t.clientY;dragStartImgX=imgX;dragStartImgY=imgY;},{passive:true});
+window.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];imgX=dragStartImgX+(t.clientX-dragStartX);imgY=dragStartImgY+(t.clientY-dragStartY);drawCanvas();},{passive:true});
+window.addEventListener('touchend',()=>{isDragging=false;});
+function setFormat(fmt){downloadFormat=fmt;document.querySelectorAll('.format-btn').forEach(b=>b.classList.remove('active'));document.getElementById('fmt-'+fmt).classList.add('active');}
+function downloadCrop(){
+  if(!sourceImage)return; if(!cropReady||!cropW||!cropH){alert('Please set a crop size first.');return;}
+  const oc=document.createElement('canvas'); oc.width=cropW; oc.height=cropH; const ot=oc.getContext('2d');
+  const s2o=cropW/cropCanvas.width;
+  ot.drawImage(sourceImage,imgX*s2o,imgY*s2o,sourceImage.width*scale*s2o,sourceImage.height*scale*s2o);
+  const mime=downloadFormat==='png'?'image/png':'image/jpeg', q=downloadFormat==='jpg'?0.95:undefined;
+  const a=document.createElement('a'); a.href=oc.toDataURL(mime,q); a.download=`crop-${cropW}x${cropH}.${downloadFormat}`; a.click();
+}
+function resetCropper(){
+  sourceImage=null;cropW=0;cropH=0;imgX=0;imgY=0;scale=1;cropReady=false;
+  document.getElementById('uploadZone').classList.remove('has-image');
+  document.getElementById('canvasWrap').classList.remove('visible');
+  document.getElementById('controlsPanel').style.display='none';
+  document.getElementById('fileInput').value='';
+  document.getElementById('cropW').value='';document.getElementById('cropH').value='';
+}
+const uploadZone=document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.style.borderColor='var(--green)';});
+uploadZone.addEventListener('dragleave',()=>{uploadZone.style.borderColor='';});
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.style.borderColor='';const file=e.dataTransfer.files[0];if(file&&file.type.startsWith('image/')){loadImage({target:{files:[file]}});}});
+</script>
+</body>
+</html>
