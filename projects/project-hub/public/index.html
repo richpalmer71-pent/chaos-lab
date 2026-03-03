@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Project Hub — CHAOS-LAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #chaos-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 38px;
+      background: #4ade80; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 28px; z-index: 9999;
+      font-family: 'DM Sans', sans-serif;
+    }
+    #chaos-bar .back-link {
+      display: flex; align-items: center; gap: 7px; text-decoration: none;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.09em;
+      text-transform: uppercase; color: #1a1d23; transition: opacity 0.15s;
+    }
+    #chaos-bar .back-link:hover { opacity: 0.6; }
+    #chaos-bar .bar-brand { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; color: #1a1d23; }
+    #root { padding-top: 38px; }
+  </style>
+</head>
+<body>
+  <div id="chaos-bar">
+    <a href="/" class="back-link">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Back to CHAOS-LAB
+    </a>
+    <span class="bar-brand">CHAOS-LAB</span>
+  </div>
+  <div id="root"></div>
+</body>
+</html>
