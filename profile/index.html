@@ -10,13 +10,32 @@
 <body>
 <nav>
 <div class="nav-inner">
-<div class="nav-item"><div class="nav-dash"></div><a href="/tools/prompt-architect" class="nav-label">AI TOOLS</a></div>
+  <div class="nav-item"><div class="nav-dash"></div><a href="/tools/prompt-architect" class="nav-label">AI TOOLS</a></div>
   <div class="nav-item"><div class="nav-dash"></div><a href="/about" class="nav-label">ABOUT</a></div>
   <div class="nav-item"><div class="nav-dash"></div><a href="/projects" class="nav-label">PROJECTS</a></div>
   <div class="nav-item"><div class="nav-dash"></div><a href="/profile" class="nav-label">PROFILE</a></div>
-  <div class="nav-right"><div class="nav-right-dash"></div><a href="/" class="nav-right-label">CHAOS-LAB</a></div>
+  <div class="nav-right">
+    <div class="nav-right-dash"></div>
+    <a href="/" class="nav-right-label">CHAOS-LAB</a>
+    <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </div>
 </nav>
+<div class="nav-drawer" id="nav-drawer">
+  <a href="/tools/prompt-architect">AI TOOLS</a>
+  <a href="/about">ABOUT</a>
+  <a href="/projects">PROJECTS</a>
+  <a href="/profile">PROFILE</a>
+</div>
+<script>
+function toggleMenu(){
+  document.getElementById('hamburger').classList.toggle('open');
+  document.getElementById('nav-drawer').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('nav-drawer').classList.contains('open') ? 'hidden' : '';
+}
+</script>
 <main class="placeholder-hero content">
   <div class="placeholder-tag">Profile</div>
   <div class="section-dash"></div>
