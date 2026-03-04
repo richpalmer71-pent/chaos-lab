@@ -11,6 +11,9 @@
 .hero-title { font-size: clamp(4rem, 13vw, 12rem); font-weight: 400; letter-spacing: -0.03em; color: var(--text); line-height: 1; text-align: center; user-select: none; }
 .hero-dash { width: 28px; height: 2px; background: var(--green); border-radius: 1px; margin-top: 28px; align-self: flex-start; margin-left: 40px; }
 .hero-sub { font-size: 0.94rem; font-weight: 300; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-top: 20px; text-align: center; }
+.hero { position: relative; }
+.hero-mask { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60vw; max-width: 700px; opacity: 0.55; mix-blend-mode: screen; pointer-events: none; user-select: none; z-index: 0; }
+.hero-title, .hero-sub, .hero-dash { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -43,6 +46,7 @@ function toggleMenu(){
 }
 </script>
 <main class="hero">
+  <img class="hero-mask" src="/Mask.png" alt=""/>
   <h1 class="hero-title">CHAOS-LAB</h1>
   <p class="hero-sub">Anything can happen</p>
   <div class="hero-dash"></div>
